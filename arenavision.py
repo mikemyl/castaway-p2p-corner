@@ -1,5 +1,5 @@
 from resources.lib.modules import client,webutils,control,convert
-import re,sys,xbmcgui,os
+import re,sys,xbmcgui,os,requests,liveresolver
 
 from resources.lib.modules.log_utils import log
 
@@ -19,8 +19,8 @@ class info():
 
 class main():
     def __init__(self):
-        self.base = 'http://arenavision.in' 
-        self.headers = { "Cookie" : "beget=begetok; has_js=1;" }       
+        self.base = 'http://arenavision.in'
+        self.headers = { "Cookie" : "beget=begetok; has_js=1;" }
 
     def links(self,url):
         links = re.findall('(\d+.+?)\[(.+?)\]',url)
@@ -28,16 +28,14 @@ class main():
         return links
 
     def channels(self):
-        
         result = client.request('http://arenavision.in/schedule', headers=self.headers)
-	print "Batman"
-	tables = client.parseDOM(result,'table',attrs={'style':'width: 100%; float: left'})
-	if tables:
-          table = tables[0]
+        tables = client.parseDOM(result,'table',attrs={'style':'width: 100%; float: left'})
+        if tables:
+            table = tables[0]
         rows = client.parseDOM(table,'tr')
         events = self.__prepare_events(rows)
         return events
-    
+
 
     @staticmethod
     def convert_time(time,date):
@@ -57,7 +55,7 @@ class main():
         tm = convertido.strftime(fm2)
         return tm,time
 
-    
+
 
     def __prepare_events(self,events):
         new = []
@@ -66,7 +64,7 @@ class main():
         for event in events:
             items = client.parseDOM(event,'td')
             i = 0
-            
+
             for item in items:
 
                 if i==0:
@@ -96,22 +94,38 @@ class main():
                 new.append((url,title, info().icon))
             except:
                 pass
-            
-        
+
+
         return new
 
     def __prepare_links(self,links):
-        new=[]        
-        
+        new=[]
+
         for link in links:
             lang = link[1]
             urls = link[0].split('-')
             for u in urls:
                 title = '[B]AV%s[/B] [%s]'%(u,lang)
-                url = 'http://arenavision.in/av' + u
+                url = 'http://www.arenavision.in/av' + u
                 new.append((url,title))
         return new
 
     def resolve(self,url):
-        import liveresolver
-        return liveresolver.resolve(url,cache_timeout=0)
+        headers = {
+                "Cookie" : "beget=begetok; has_js=1;"
+        }
+        try:
+            source = requests.get(url,headers=headers).text
+        except:
+            source = None
+        if source:
+            match = re.compile('sop://(.+?)"').findall(source)
+            if match:
+                log("sop://" + match[0])
+                return "sop://" + match[0]
+            else:
+                match = re.compile('this.loadPlayer\("(.+?)"').findall(source)
+                if match:
+                    return liveresolver.resolve("acestream://" + match[0])
+                else:
+                    pass
