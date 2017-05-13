@@ -28,7 +28,7 @@ class main():
         return links
 
     def channels(self):
-        result = client.request('http://arenavision.in/schedule', headers=self.headers)
+        result = client.request('http://arenavision.in/schedule-', headers=self.headers)
         tables = client.parseDOM(result,'table',attrs={'style':'width: 100%; float: left'})
         if tables:
             table = tables[0]
