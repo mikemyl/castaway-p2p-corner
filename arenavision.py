@@ -28,7 +28,19 @@ class main():
         return links
 
     def channels(self):
-        result = client.request('http://arenavision.in/schedule', headers=self.headers)
+        result = client.request('http://arenavision.in', headers=self.headers)
+        links = client.parseDOM(result,'a')
+        schedule_link_offset = -1
+        for i,link in enumerate(links):
+            #log(link)
+            if link.startswith('EVENTS'):
+                #log(link)
+                #log(i)
+                schedule_link_offset = i
+
+        schedule = client.parseDOM(result,'a', ret='href')[schedule_link_offset]
+        #log('http://arenavision.in' + schedule)
+        result = client.request('http://arenavision.in' + schedule, headers=self.headers)
         tables = client.parseDOM(result,'table',attrs={'style':'width: 100%; float: left'})
         if tables:
             table = tables[0]
