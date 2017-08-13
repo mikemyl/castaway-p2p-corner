@@ -1,5 +1,6 @@
 from resources.lib.modules import client,webutils,control,convert
 import re,sys,xbmcgui,os,requests,liveresolver
+import inspect
 
 from resources.lib.modules.log_utils import log
 
@@ -118,7 +119,7 @@ class main():
             urls = link[0].split('-')
             for u in urls:
                 title = '[B]AV%s[/B] [%s]'%(u,lang)
-                url = 'http://www.arenavision.in/av' + u
+                url = 'http://www.arenavision.in/' + u
                 new.append((url,title))
         return new
 
@@ -127,6 +128,7 @@ class main():
                 "Cookie" : "beget=begetok; has_js=1;"
         }
         try:
+            #log('batman : ' + url)
             source = requests.get(url,headers=headers).text
         except:
             source = None
