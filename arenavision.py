@@ -6,6 +6,9 @@ from resources.lib.modules.log_utils import log
 
 AddonPath = control.addonPath
 IconPath = AddonPath + "/resources/media/"
+
+_channels = {}
+
 def icon_path(filename):
     return os.path.join(IconPath, filename)
 
@@ -22,26 +25,31 @@ class main():
     def __init__(self):
         self.base = 'http://arenavision.in'
         self.headers = { "Cookie" : "beget=begetok; has_js=1;" }
+        self._channels = {}
+        self._schedule = None
+
+
+    def _find_links(self):
+        result = client.request('http://arenavision.in', headers=self.headers)
+        links, hrefs = client.parseDOM(result,'a'), client.parseDOM(result,'a', ret='href')
+        for i,link in enumerate(links):
+            if link.startswith('ArenaVision'):
+                self._channels[int(link[-2:])] = hrefs[i]
+                continue
+            if link.startswith('EVENTS'):
+                self._schedule = hrefs[i]
+
 
     def links(self,url):
+        self._find_links()
         links = re.findall('(\d+.+?)\[(.+?)\]',url)
         links=self.__prepare_links(links)
         return links
 
     def channels(self):
-        result = client.request('http://arenavision.in', headers=self.headers)
-        links = client.parseDOM(result,'a')
-        schedule_link_offset = -1
-        for i,link in enumerate(links):
-            #log(link)
-            if link.startswith('EVENTS'):
-                #log(link)
-                #log(i)
-                schedule_link_offset = i
-
-        schedule = client.parseDOM(result,'a', ret='href')[schedule_link_offset]
-        #log('http://arenavision.in' + schedule)
-        result = client.request('http://arenavision.in' + schedule, headers=self.headers)
+        if self._schedule is None:
+            self._find_links()
+        result = client.request('http://arenavision.in' + self._schedule, headers=self.headers)
         tables = client.parseDOM(result,'table',attrs={'style':'width: 100%; float: left'})
         if tables:
             table = tables[0]
@@ -113,13 +121,15 @@ class main():
 
     def __prepare_links(self,links):
         new=[]
+        if self._schedule is None:
+            self._find_links()
 
         for link in links:
             lang = link[1]
             urls = link[0].split('-')
             for u in urls:
                 title = '[B]AV%s[/B] [%s]'%(u,lang)
-                url = 'http://www.arenavision.in/' + u
+                url = 'http://www.arenavision.in/' + self._channels[int(u)]
                 new.append((url,title))
         return new
 
