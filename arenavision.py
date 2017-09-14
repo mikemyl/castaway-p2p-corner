@@ -34,17 +34,10 @@ class main():
         links, hrefs = client.parseDOM(result,'a'), client.parseDOM(result,'a', ret='href')
         for i,link in enumerate(links):
             if link.startswith('ArenaVision'):
-                #log("batman: {} - {}".format(link[-2:], hrefs[i]))
                 self._channels[int(link[-2:])] = hrefs[i]
                 continue
             if link.startswith('EVENTS'):
                 self._schedule = hrefs[i]
-        self._add_new_channels_31_35()
-
-    def _add_new_channels_31_35(self):
-        for i in range(31,36):
-            self._channels[i] = str(i)
-            #log(self._channels[i])
 
 
     def links(self,url):
@@ -137,7 +130,6 @@ class main():
             for u in urls:
                 title = '[B]AV%s[/B] [%s]'%(u,lang)
                 url = 'http://www.arenavision.in/' + self._channels[int(u)]
-                #log("batman url : {} , title : {}".format(url, title))
                 new.append((url,title))
         return new
 
