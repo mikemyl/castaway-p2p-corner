@@ -19,12 +19,12 @@ class info():
     	self.multilink = False
 
 class main():
-	def __init__(self,url = 'http://super-pomoyka.us.to/trash/ttv-list/ttv.json'):
+	def __init__(self,url = 'http://pomoyka.lib.emergate.net/trash/ttv-list/ttv.json'):
 		self.base = 'acestream://'
 		self.url = url
 		self.dict_torrent = {}
 		self.html = client.request(self.url)
-		
+
 	def categories(self):
 		cats = [('Music','Музыка'),('General','Общие'),('News','Новостные'),('Educational','Познавательные'),('Entertainment','Развлекательные'),('Regional','Региональные'),
 				('Men', 'Мужские'),('Adult' ,'Для взрослых'),('Kids','Детские'), ('Movies', 'Фильмы'),('Religious','Религиозные'),('.Sport','Спорт')]
@@ -48,7 +48,7 @@ class main():
 		events.sort(key=lambda x: x[1])
 		return events
 
-	
+
 	def resolve(self,url):
 		import liveresolver
 		return liveresolver.resolve(url,cache_timeout=0)
