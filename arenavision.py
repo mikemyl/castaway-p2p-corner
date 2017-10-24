@@ -37,6 +37,7 @@ class main():
                 self._channels[int(link[-2:])] = hrefs[i]
                 continue
             if link.startswith('EVENTS'):
+                log('batman : ' + hrefs[i])
                 self._schedule = hrefs[i]
 
 
@@ -91,7 +92,7 @@ class main():
                 if i==0:
                     date = item
                 elif i==1:
-                    time = item.replace('CEST','').strip()
+                    time = item.replace('CET','').strip()
                 elif i==2:
                     sport = item
                 elif i==3:
@@ -107,14 +108,13 @@ class main():
                 if date != date_old:
                     date_old = date
                     new.append(('x','[COLOR yellow]%s[/COLOR]'%date, info().icon))
-
                 sport = '%s - %s'%(sport,competition)
                 event = re.sub('\s+',' ',event)
                 title = '[COLOR orange](%s)[/COLOR] (%s) [B]%s[/B]'%(time,sport,convert.unescape(event))
                 title = title.encode('utf-8')
                 new.append((url,title, info().icon))
-            except:
-                pass
+            except Exception as e:
+                log(e)
 
 
         return new
@@ -138,7 +138,7 @@ class main():
                 "Cookie" : "beget=begetok; has_js=1;"
         }
         try:
-            #log('batman : ' + url)
+            log('batman : ' + url)
             source = requests.get(url,headers=headers).text
         except:
             source = None
