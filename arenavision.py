@@ -129,7 +129,7 @@ class main():
             urls = link[0].split('-')
             for u in urls:
                 title = '[B]AV%s[/B] [%s]'%(u,lang)
-                url = 'http://www.arenavision.in/' + self._channels[int(u)]
+                url = self._channels[int(u)]
                 new.append((url,title))
         return new
 
